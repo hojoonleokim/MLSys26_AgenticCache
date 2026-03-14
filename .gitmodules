@@ -1,0 +1,9 @@
+[submodule "MLSys26_AgenticCache-COHERENT"]
+	path = MLSys26_AgenticCache-COHERENT
+	url = git@github.com:hojoonleokim/MLSys26_AgenticCache-COHERENT.git
+[submodule "MLSys26_AgenticCache-CoELA"]
+	path = MLSys26_AgenticCache-CoELA
+	url = git@github.com:hojoonleokim/MLSys26_AgenticCache-CoELA.git
+[submodule "MLSys26_AgenticCache-COMBO"]
+	path = MLSys26_AgenticCache-COMBO
+	url = git@github.com:hojoonleokim/MLSys26_AgenticCache-COMBO.git
