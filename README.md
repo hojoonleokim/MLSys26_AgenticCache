@@ -32,18 +32,20 @@ git submodule update --remote --merge
 
 ## Environment Setup
 
-Each submodule has its own `environment.yml` (on the `baseline` branch). Create the conda environments:
+Pre-configured environment files are available in the `envs/` directory. Create the conda environments:
 
 ```bash
 # COHERENT
-conda env create -f MLSys26_AgenticCache-COHERENT/environment.yml
+conda env create -f envs/coherent.yml
 
 # CoELA
-conda env create -f MLSys26_AgenticCache-CoELA/environment.yml
+conda env create -f envs/coela.yml
 
 # COMBO
-conda env create -f MLSys26_AgenticCache-COMBO/environment.yml
+conda env create -f envs/combo.yml
 ```
+
+Alternatively, each submodule has its own `environment.yml` on the `baseline` branch.
 
 ## X Server Setup (CoELA & COMBO only)
 
