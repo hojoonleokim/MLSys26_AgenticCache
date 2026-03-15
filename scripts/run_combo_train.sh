@@ -1,22 +1,19 @@
 #!/bin/bash
 # =============================================================================
-# Run CoELA experiments across all branches
+# Run COMBO training pipeline (prerequisite for evaluation)
 # Requires: Xorg running on DISPLAY :1
-# Usage: ./scripts/run_coela.sh
-# Cache episodes (excluded from eval): 1 2 3 4
+# Usage: ./scripts/run_combo_train.sh [--step N]
 # =============================================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SUBMODULE_DIR="$REPO_ROOT/MLSys26_AgenticCache-CoELA"
-
-BRANCHES=(baseline agenticcache parallel speculative)
+SUBMODULE_DIR="$REPO_ROOT/MLSys26_AgenticCache-COMBO"
 
 echo "========================================"
-echo "CoELA — Full Experiment Run"
-echo "Branches: ${BRANCHES[*]}"
+echo "COMBO — Training Pipeline"
+echo "Branch: training-code"
 echo "Requires: DISPLAY=:1 (Xorg)"
 echo "========================================"
 
@@ -29,21 +26,19 @@ fi
 
 ORIGINAL_BRANCH=$(cd "$SUBMODULE_DIR" && git rev-parse --abbrev-ref HEAD)
 
-for branch in "${BRANCHES[@]}"; do
-    echo ""
-    echo "========================================"
-    echo "Branch: $branch"
-    echo "========================================"
+cd "$SUBMODULE_DIR"
+git checkout training-code
+cd AVDC/flowdiffusion
 
-    cd "$SUBMODULE_DIR"
-    git checkout "$branch"
-    cd tdw_mat
+echo ""
+echo "Starting training pipeline..."
+echo ""
 
-    conda run -n coela --no-banner \
-        bash scripts/test_2_LMs-gpt-5.sh
+conda run -n combo --no-banner \
+    bash train_all.sh "$@"
 
-    echo "Branch $branch completed."
-done
+echo ""
+echo "Training completed."
 
 # Restore original branch
 cd "$SUBMODULE_DIR"
@@ -51,5 +46,6 @@ git checkout "$ORIGINAL_BRANCH"
 
 echo ""
 echo "========================================"
-echo "All CoELA experiments completed!"
+echo "COMBO training pipeline completed!"
+echo "Output: AVDC/results/tdw_maco_inpainting/modl-100.pt"
 echo "========================================"
