@@ -48,19 +48,22 @@ for branch in "${BRANCHES[@]}"; do
     git checkout "$branch"
     cd tdw_maco
 
+    eval "$(conda shell.bash hook)"
+    conda activate combo
+
     if [ "$TASK" == "cook" ] || [ "$TASK" == "all" ]; then
         echo "  Running cook task..."
-        conda run -n combo --no-banner \
-            bash scripts/run_gpt5_all.sh cook "$START_ID_COOK" "$NUM_RUNS_COOK"
+        bash scripts/run_gpt5_all.sh cook "$START_ID_COOK" "$NUM_RUNS_COOK"
         echo "  Done: cook"
     fi
 
     if [ "$TASK" == "game" ] || [ "$TASK" == "all" ]; then
         echo "  Running game task..."
-        conda run -n combo --no-banner \
-            bash scripts/run_gpt5_all.sh game "$START_ID_GAME" "$NUM_RUNS_GAME"
+        bash scripts/run_gpt5_all.sh game "$START_ID_GAME" "$NUM_RUNS_GAME"
         echo "  Done: game"
     fi
+
+    conda deactivate
 
     echo "Branch $branch completed."
 done

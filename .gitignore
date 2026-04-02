@@ -1,1 +1,8 @@
-results/
+results/*
+!results/README.md
+
+# Working files (not for repo)
+ae_checklist.md
+ae_review.md
+ae_response_draft.md
+section_ae.tex

@@ -34,8 +34,10 @@ echo ""
 echo "Starting training pipeline..."
 echo ""
 
-conda run -n combo --no-banner \
-    bash train_all.sh "$@"
+eval "$(conda shell.bash hook)"
+conda activate combo
+bash train_all.sh "$@"
+conda deactivate
 
 echo ""
 echo "Training completed."

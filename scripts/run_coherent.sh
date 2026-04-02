@@ -30,8 +30,10 @@ for branch in "${BRANCHES[@]}"; do
     git checkout "$branch"
     cd src/experiment/PEFA
 
-    conda run -n coherent --no-banner \
-        bash scripts/run_all.sh
+    eval "$(conda shell.bash hook)"
+    conda activate coherent
+    bash scripts/run_all.sh
+    conda deactivate
 
     echo "Branch $branch completed."
 done

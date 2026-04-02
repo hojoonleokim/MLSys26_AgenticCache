@@ -39,8 +39,10 @@ for branch in "${BRANCHES[@]}"; do
     git checkout "$branch"
     cd tdw_mat
 
-    conda run -n coela --no-banner \
-        bash scripts/test_2_LMs-gpt-5.sh
+    eval "$(conda shell.bash hook)"
+    conda activate coela
+    bash scripts/test_2_LMs-gpt-5.sh
+    conda deactivate
 
     echo "Branch $branch completed."
 done
