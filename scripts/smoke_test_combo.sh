@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # COMBO — Smoke Test (minimal validation)
-# Runs 1 branch (baseline) × 1 model (gpt-5) × 1 cook episode to verify setup.
+# Runs 1 branch (agenticcache) × 1 model (gpt-5) × 1 cook episode to verify setup.
 # Requires: Xorg running on DISPLAY :1, OPENAI_API_KEY set
 # Usage: ./scripts/smoke_test_combo.sh
 # =============================================================================

@@ -10,7 +10,7 @@ and COHERENT benchmarks.
 
 Requirements: Python 3, no GPU / API key / simulator needed.
 Input: Raw JSON logs in results/ directory (download from Google Drive link in README).
-Output: Printed table + table1.tex LaTeX file.
+Output: Printed table + table2.tex LaTeX file.
 """
 
 import json

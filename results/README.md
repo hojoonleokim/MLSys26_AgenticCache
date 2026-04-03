@@ -2,7 +2,9 @@
 
 This directory contains pre-run evaluation logs used by the reproduction scripts.
 
-**Download:** The raw logs are hosted on Google Drive as `results.tar.gz`. See the [main README](../README.md#results) for the download link and extraction instructions.
+**Download:** The raw logs are hosted on Google Drive as `results.tar.gz` (~347 MB). See the [main README](../README.md#results--reproducing-tables-and-figures) for the download link and extraction instructions.
+
+All evaluation logs are in JSON format (one file per episode per method).
 
 ## Structure
 
@@ -25,7 +27,7 @@ results/
 │   └── coherent_ngram_analysis.txt
 └── fig11/                 # Figure 11: Plan Execution Accuracy
     ├── result_log/        #   validation.jsonl + plan_tracking.txt
-    ├── LMs-gpt-5-*/       #   Ours+ eval_result.json (SR calculation)
+    ├── LMs-gpt-5-*/       #   Ours+ eval_result.json (SR calculation), e.g. LMs-gpt-5-cook/
     └── baseline_large_maps/ # Baseline eval_result.json (SR calculation)
 ```
 

@@ -8,7 +8,7 @@ scenarios with 30-object environments under the 6000-frame budget.
 
 Requirements: Python 3, no GPU / API key / simulator needed.
 Input: Raw JSON logs in results/table4/ directory.
-Output: Printed table + table3-6000.tex LaTeX file.
+Output: Printed table + table4-6000.tex LaTeX file.
 """
 
 import json

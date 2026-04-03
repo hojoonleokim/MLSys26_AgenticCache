@@ -1,11 +1,11 @@
 # MLSys'26 Artifact Evaluation — AgenticCache
 
-[![DOI](https://zenodo.org/badge/DOI/TODO.svg)](https://doi.org/TODO)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19396846.svg)](https://doi.org/10.5281/zenodo.19396846)
 
 This repository contains the artifacts for the MLSys 2026 paper **AgenticCache**.
 
 > **License:** [MIT](./LICENSE) (submodules retain their original licenses; see [Licenses](#licenses))  
-> **Persistent Archive:** A Zenodo deposit with a permanent DOI will be linked here once available.
+> **Persistent Archive:** [Zenodo DOI 10.5281/zenodo.19396846](https://doi.org/10.5281/zenodo.19396846)
 
 ## Repository Structure
 
@@ -24,7 +24,7 @@ This repository contains the artifacts for the MLSys 2026 paper **AgenticCache**
 ├── reproduce_table2.py               # Reproduce Table 2
 ├── reproduce_table3.py               # Reproduce Table 3
 ├── reproduce_table4.py               # Reproduce Table 4
-├── reproduce_figure4.py               # Reproduce Figure 4
+├── reproduce_figure4.py              # Reproduce Figure 4
 └── reproduce_figure11.py             # Reproduce Figure 11
 ```
 
@@ -44,17 +44,17 @@ git submodule update --init --recursive
 
 ### 2. Set OpenAI API Key
 
-All benchmarks require an OpenAI API key for LLM inference (GPT-5 / GPT-5-mini / GPT-5-nano).
+All benchmarks require an OpenAI API key for LLM inference (GPT-5 `gpt-5-2025-08-07` / GPT-5-mini `gpt-5-mini-2025-08-07` / GPT-5-nano `gpt-5-nano-2025-08-07`).
 
 ```bash
 export OPENAI_API_KEY="sk-..."
 ```
 
-You can also add this to your `~/.bashrc` or `~/.zshrc` for persistence.
+You can also add this to your shell profile (`~/.bashrc` / `~/.zshrc`) for persistence.
 
 ### 3. Setup Conda Environments
 
-Create conda environments in your home directory using pre-configured environment files:
+Create conda environments using the pre-configured environment files:
 
 ```bash
 # Create all three environments
@@ -63,16 +63,41 @@ conda env create -f envs/coela.yml
 conda env create -f envs/combo.yml
 ```
 
-**Note**: Each submodule has its own `environment.yml` on the `baseline` branch if you prefer manual setup.
+**Note**: Each submodule also ships its own `environment.yml` (available on every branch) if you prefer manual setup.
 
 > **CUDA version mismatch?** The environment YAMLs pin specific CUDA/cuDNN versions. If your system has a different CUDA driver, you may need to adjust the `cudatoolkit` / `pytorch-cuda` version in the YAML before creating the environment. Run `nvidia-smi` to check your driver version.
 
-### 4. Smoke Test (Minimal Validation)
+### 4. Setup X Server (for CoELA & COMBO)
+
+CoELA and COMBO use [TDW (ThreeDWorld)](https://www.threedworld.org/), which requires an active X server. **Skip this step if you're only running COHERENT.**
+
+See the [TDW server setup guide](https://github.com/threedworld-mit/tdw/blob/master/Documentation/lessons/setup/server.md) for full details.
+
+> **Note:** The instructions below assume a **headless server** (no desktop environment). If you are on a machine with an active desktop session, you can skip step (a) and directly start a new X server on an unused display (e.g., `:1`).
+
+#### a) (Headless only) Kill existing X server processes
+
+If stale Xorg processes are occupying the GPU, remove them first:
+
+```bash
+nvidia-smi  # Look for Xorg / gnome-shell processes
+sudo kill -9 <PID_of_Xorg>
+```
+
+#### b) Start a new X server on display `:1`
+
+```bash
+sudo nohup Xorg :1 -config /etc/X11/xorg-1.conf &
+```
+
+Verify with `nvidia-smi` — you should see an `Xorg` process on the target GPU.
+
+### 5. Smoke Test (Minimal Validation)
 
 To quickly verify that your environment, API key, and dependencies are working correctly, run one of the smoke test scripts. Each runs **1 branch × 1 model × 1 episode** (~5–10 min):
 
 ```bash
-# COHERENT only (no Xorg needed)
+# COHERENT (no Xorg needed)
 ./scripts/smoke_test_coherent.sh
 
 # CoELA (requires Xorg on :1)
@@ -90,33 +115,6 @@ To quickly verify that your environment, API key, and dependencies are working c
 
 If a smoke test completes without errors, your setup is ready for full benchmark runs.
 
-### 5. Setup X Server (for CoELA & COMBO)
-
-CoELA and COMBO use [TDW (ThreeDWorld)](https://www.threedworld.org/), which requires an active X server. **Skip this if you're only running COHERENT.**
-
-See the [TDW server setup guide](https://github.com/threedworld-mit/tdw/blob/master/Documentation/lessons/setup/server.md) for full details.
-
-#### a) Kill existing X server processes
-
-```bash
-# Check what's running
-nvidia-smi  # Look for Xorg / gnome-shell processes
-
-# Kill them
-sudo kill -9 <PID_of_Xorg>
-sudo kill -9 <PID_of_gnome-shell>
-```
-
-#### b) Start a new X server
-
-We use display `:1` with a custom xorg config:
-
-```bash
-sudo nohup Xorg :1 -config /etc/X11/xorg-1.conf &
-```
-
-Verify with `nvidia-smi` — you should see an `Xorg` process on the target GPU.
-
 ## Pre-trained COMBO Checkpoint
 
 COMBO evaluation requires a finetuned inpainting VDM checkpoint (`modl-100.pt`). You can either download the pre-trained checkpoint or train from scratch.
@@ -131,76 +129,37 @@ tar xzf modl-100.pt.tar.gz
 cp modl-100.pt MLSys26_AgenticCache-COMBO/tdw_maco/modl-100.pt
 ```
 
-If you prefer to train from scratch, see the section below.
-
-## COMBO: Finetuning (before evaluation)
-
-COMBO requires a finetuned inpainting VDM model before running experiments. The full pipeline is on the `training-code` branch and **also requires Xorg** for TDW data collection.
-
-### Automated training script
-
-```bash
-./scripts/run_combo_train.sh              # full pipeline (env setup → data gen → preprocess → train)
-./scripts/run_combo_train.sh --step 1     # skip env setup (env already exists)
-./scripts/run_combo_train.sh --step 2     # skip data generation
-./scripts/run_combo_train.sh --step 3     # skip data gen + preprocess (train only)
-```
-
-### Manual training (alternative)
-
-```bash
-cd MLSys26_AgenticCache-COMBO
-git checkout training-code
-cd AVDC/flowdiffusion
-bash train_all.sh              # full pipeline (env setup → data gen → preprocess → train)
-bash train_all.sh --step 1     # skip env setup (env already exists)
-bash train_all.sh --step 2     # skip data generation
-bash train_all.sh --step 3     # skip data gen + preprocess (train only)
-```
-
-| Step | Description | Xorg needed? |
-|------|-------------|:------------:|
-| 0 | Conda env setup | No |
-| 1 | Generate train/test data via TDW (`DISPLAY=:1`) | **Yes** |
-| 2 | Preprocess text embeddings (T5-XXL) | No |
-| 3 | Train inpainting diffusion model (100K steps) | No |
-
-The final checkpoint (`modl-100.pt`) is used by all experiment branches.
-
 ## Execution Workflow
 
-### Overview
+Each wrapper script in `scripts/` automatically checks out all 4 branches (`baseline`, `agenticcache`, `parallel`, `speculative`), runs the evaluation with the appropriate conda environment, and restores the original branch.
 
-1. **COMBO Training** (optional, if checkpoint not available): `./scripts/run_combo_train.sh`
-2. **Run Evaluations**: Use the automated scripts below to run all branches
+| Script | Submodule Script (relative to submodule root) | Environment | Description |
+|--------|--------------------------------------------------|-------------|-------------|
+| `run_coherent.sh` | `src/experiment/PEFA/scripts/run_all.sh` | `coherent` | Runs all 3 models × 5 envs (no Xorg) |
+| `run_coela.sh` | `tdw_mat/scripts/test_2_LMs-gpt-5.sh` | `coela` | Runs all 3 models on test_2 split (requires Xorg) |
+| `run_combo.sh` | `tdw_maco/scripts/run_gpt5_all.sh` | `combo` | Runs all 3 models on cook+game tasks (requires Xorg) |
 
-All scripts automatically:
-- Checkout each branch (`baseline`, `agenticcache`, `parallel`, `speculative`)
-- Execute the per-branch evaluation script using the appropriate conda environment
-- Restore the original branch after completion
+```bash
+# 1. COHERENT Evaluation (no Xorg needed)
+./scripts/run_coherent.sh                 # all models × all envs
 
-### What Each Script Does
+# 2. CoELA Evaluation (requires Xorg on :1)
+./scripts/run_coela.sh                    # all models on test_2 split
 
-| Script | Submodule Script | Environment | Description |
-|--------|------------------|-------------|-------------|
-| `run_coherent.sh` | `scripts/run_all.sh` | `coherent` | Runs all 3 models × 5 envs (no Xorg) |
-| `run_coela.sh` | `scripts/test_2_LMs-gpt-5.sh` | `coela` | Runs all 3 models on test_2 split (requires Xorg) |
-| `run_combo.sh` | `scripts/run_gpt5_all.sh` | `combo` | Runs all 3 models on cook+game tasks (requires Xorg) |
-| `run_combo_train.sh` | `train_all.sh` | `combo` | Trains inpainting VDM model (requires Xorg) |
+# 3. COMBO Evaluation (requires Xorg on :1)
+./scripts/run_combo.sh                    # all tasks (cook + game)
+./scripts/run_combo.sh cook               # cook only
+./scripts/run_combo.sh game               # game only
+```
 
-**Note**: All submodule scripts use `python3` or `python` directly. The wrapper scripts (`scripts/run_*.sh`) execute them via `conda run -n <env>` to ensure the correct environment is activated.
+**Note**: The wrapper scripts activate the appropriate conda environment automatically. If you run a submodule script manually (outside the wrapper), activate the environment first with `conda activate <env>`.
 
-## Evaluation
-
-Please refer to the README in each submodule for benchmark-specific setup and reproduction instructions:
-
-- [COHERENT](./MLSys26_AgenticCache-COHERENT/)
-- [CoELA](./MLSys26_AgenticCache-CoELA/)
-- [COMBO](./MLSys26_AgenticCache-COMBO/)
+For benchmark-specific details, see each submodule's README:
+[COHERENT](https://github.com/hojoonleokim/MLSys26_AgenticCache-COHERENT) · [CoELA](https://github.com/hojoonleokim/MLSys26_AgenticCache-CoELA) · [COMBO](https://github.com/hojoonleokim/MLSys26_AgenticCache-COMBO)
 
 ### Cache Episodes (excluded from evaluation)
 
-The following episodes are used to build the AgenticCache and are **excluded** from evaluation runs:
+The following episodes are used to warm up the AgenticCache and are **excluded** from evaluation runs:
 
 | Benchmark | Cache Episodes |
 |-----------|---------------|
@@ -208,36 +167,18 @@ The following episodes are used to build the AgenticCache and are **excluded** f
 | **CoELA** | test_2 episodes `1 2 3 4` |
 | **COMBO** | cook `0 1`, game `0` |
 
-### Run All Branches Automatically
+## Results & Reproducing Tables and Figures
 
-The following scripts automatically iterate over all 4 branches (`baseline`, `agenticcache`, `parallel`, `speculative`), check out each one, run the experiments, and restore the original branch:
+All pre-run result logs are available for download. These scripts require **no GPU, no API key, and no simulator** — the table scripts use only the Python standard library; the figure scripts additionally require `matplotlib` and `numpy`.
 
-```bash
-# 1. COMBO Training (run once before evaluation)
-./scripts/run_combo_train.sh              # full pipeline
-./scripts/run_combo_train.sh --step 3     # train only (if data already exists)
+### 1. Download and extract pre-run logs
 
-# 2. COHERENT Evaluation (no Xorg needed)
-./scripts/run_coherent.sh                 # all models × all envs
-
-# 3. CoELA Evaluation (requires Xorg on :1)
-./scripts/run_coela.sh                    # all models on test_2 split
-
-# 4. COMBO Evaluation (requires Xorg on :1)
-./scripts/run_combo.sh                    # all tasks (cook + game)
-./scripts/run_combo.sh cook               # cook only
-./scripts/run_combo.sh game               # game only
-```
-
-## Results
-
-All pre-run result logs are available for download. After downloading, extract them into the `results/` directory:
-
-> **Google Drive:** [results.tar.gz](https://drive.google.com/file/d/1f8dwVKWVlNicKy0SL61jfaQ_kzberH-D/view?usp=drive_link)
+> **Google Drive:** [results.tar.gz](https://drive.google.com/file/d/1f8dwVKWVlNicKy0SL61jfaQ_kzberH-D/view?usp=drive_link) (~347 MB)
 
 ```bash
 cd results/
 tar xzf results.tar.gz
+cd ..
 ```
 
 The extracted structure:
@@ -253,9 +194,9 @@ results/
 
 See [`results/README.md`](./results/README.md) for detailed structure.
 
-### Reproducing Tables and Figures
+### 2. Run reproduction scripts
 
-We provide analysis scripts that parse the raw JSON logs and reproduce the tables and figures in the paper. These scripts require **no GPU, no API key, and no simulator** — only Python with `pandas` and `matplotlib`.
+Each table script prints a formatted table to stdout; each figure script saves both PDF and PNG files in the current directory.
 
 | Script | Paper Claim | Description |
 |--------|-------------|-------------|
@@ -266,7 +207,9 @@ We provide analysis scripts that parse the raw JSON logs and reproduce the table
 | `reproduce_figure11.py` | Figure 11 | Plan execution accuracy over time |
 
 ```bash
-# Run all reproduction scripts (no GPU needed)
+# Run all reproduction scripts (Python 3.9+, no GPU needed)
+pip install matplotlib numpy   # only needed for figure scripts
+
 python reproduce_table2.py
 python reproduce_table3.py
 python reproduce_table4.py

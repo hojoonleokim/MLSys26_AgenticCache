@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # COHERENT — Smoke Test (minimal validation)
-# Runs 1 branch (baseline) × 1 model (gpt-5) × 1 env × 1 task to verify setup.
+# Runs 1 branch (agenticcache) × 1 model (gpt-5) × 1 env × 1 task to verify setup.
 # Requires: OPENAI_API_KEY set (no Xorg needed)
 # Usage: ./scripts/smoke_test_coherent.sh
 # =============================================================================
